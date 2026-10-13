@@ -1,0 +1,137 @@
+---
+description: Manage browser sessions and tabs using HTTP endpoints, including creating sessions, listing targets, and opening the Chrome DevTools UI.
+title: Session management (HTTP)
+image: https://developers.cloudflare.com/browser-run/cdp/session-management/og.png?v=65bb6114563a9b7c
+---
+
+[Skip to content](#main-content)
+
+> Documentation Index  
+> Fetch the complete documentation index at: https://developers.cloudflare.com/browser-run/llms.txt  
+> Use this file to discover all available pages before exploring further.
+
+# Session management (HTTP)
+
+Last updated Sep 26, 2026|Copy as Markdown| [View as Markdown](https://developers.cloudflare.com/browser-run/cdp/session-management/index.md)| [Agent setup](https://developers.cloudflare.com/agent-setup/)
+
+Use the HTTP API to manage browser sessions and tabs without using WebSocket connections. This is useful for session lifecycle operations like creating sessions, listing tabs, and cleaning up resources.
+
+Before you begin, [create a custom API Token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) with `Browser Rendering - Edit` permission.
+
+The [API reference](https://developers.cloudflare.com/api/resources/browser_rendering/) documents all session management endpoints under `/devtools`.
+
+When your code runs in a Worker, you can use the typed [Browser binding API](https://developers.cloudflare.com/browser-run/reference/browser-binding-api/) instead of constructing HTTP requests. The binding exposes `acquire()`, `connectSession()`, `launch()`, and a nested `devtools` target for session and target management.
+
+## Step 1: Acquire a browser session
+
+Create a new browser session using the `POST /devtools/browser` endpoint. The session will remain active for the specified keep-alive time (in this example, 10 minutes).
+
+```bash
+curl "https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/browser-run/devtools/browser?keep_alive=600000" \
+	--request POST \
+	--header "Authorization: Bearer {api_token}"
+```
+
+```json
+{
+	"sessionId": "1909cef7-23e8-4394-bc31-27404bf4348f",
+	"webSocketDebuggerUrl": "wss://api.cloudflare.com/client/v4/accounts/{account_id}/browser-run/devtools/browser/1909cef7-23e8-4394-bc31-27404bf4348f"
+}
+```
+
+Save the `sessionId` from the response. You will use it in subsequent requests.
+
+## Step 2: Create a tab with a specific URL
+
+Open a new tab in your browser session and navigate to a specific URL using the `PUT /devtools/browser/{session_id}/json/new` endpoint.
+
+```bash
+curl "https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/browser-run/devtools/browser/SESSION_ID/json/new?url=https%3A%2F%2Fexample.com" \
+	--request PUT \
+	--header "Authorization: Bearer {api_token}"
+```
+
+```json
+{
+	"id": "8E598E996530FB09E46A22B8B7754F7F",
+	"type": "page",
+	"url": "https://example.com",
+	"title": "Example Domain",
+	"description": "",
+	"devtoolsFrontendUrl": "https://live.browser.run/ui/view?wss=live.browser.run/api/devtools/browser/1909cef7-23e8-4394-bc31-27404bf4348f/page/8E598E996530FB09E46A22B8B7754F7F?jwt=...",
+	"webSocketDebuggerUrl": "wss://live.browser.run/api/devtools/browser/1909cef7-23e8-4394-bc31-27404bf4348f/page/8E598E996530FB09E46A22B8B7754F7F?jwt=..."
+}
+```
+
+## Step 3: List all targets
+
+List all targets (tabs) in your session to verify the tab was created and get the `devtoolsFrontendUrl`.
+
+```bash
+curl "https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/browser-run/devtools/browser/SESSION_ID/json/list" \
+	--request GET \
+	--header "Authorization: Bearer {api_token}"
+```
+
+```json
+[
+	{
+		"id": "8E598E996530FB09E46A22B8B7754F7F",
+		"type": "page",
+		"url": "https://example.com",
+		"title": "Example Domain",
+		"description": "",
+		"devtoolsFrontendUrl": "https://live.browser.run/ui/view?wss=live.browser.run/api/devtools/browser/1909cef7-23e8-4394-bc31-27404bf4348f/page/8E598E996530FB09E46A22B8B7754F7F?jwt=...",
+		"webSocketDebuggerUrl": "wss://live.browser.run/api/devtools/browser/1909cef7-23e8-4394-bc31-27404bf4348f/page/8E598E996530FB09E46A22B8B7754F7F?jwt=..."
+	}
+]
+```
+
+## Step 4: Open the DevTools UI
+
+Copy the `devtoolsFrontendUrl` from the response and open it in Chrome. This URL provides direct access to the Chrome DevTools UI connected to your remote browser session.
+
+URL validity
+
+The `devtoolsFrontendUrl` is valid for five minutes from when it was generated. If you do not open the URL within this timeframe, it will expire and you will need to list the targets again to get a fresh URL. Once the DevTools connection is established, it remains active as long as the browser session is alive.
+
+Once opened, the DevTools UI will load and you can:
+
+- Inspect the DOM and CSS
+- Debug JavaScript with breakpoints
+- Monitor network requests
+- View console messages
+- Execute JavaScript in the console
+- Navigate to different URLs
+
+## Step 5: Clean up
+
+When you are done, close the browser session to release resources.
+
+```bash
+curl "https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/browser-run/devtools/browser/SESSION_ID" \
+	--request DELETE \
+	--header "Authorization: Bearer {api_token}"
+```
+
+```json
+{
+	"status": "closing"
+}
+```
+
+## Troubleshooting
+
+If you have questions or encounter an error, see the [Browser Run FAQ and troubleshooting guide](https://developers.cloudflare.com/browser-run/faq/).
+
+Was this helpful?
+
+YesNo
+
+## On this page
+
+[![](https://developers.cloudflare.com/_astro/logo.te5VL_aD.svg)Docs](https://developers.cloudflare.com/)
+
+```json
+{"@context":"https://schema.org","@type":"TechArticle","@id":"https://developers.cloudflare.com/browser-run/cdp/session-management/#page","headline":"Session management (HTTP)","description":"Manage browser sessions and tabs using HTTP endpoints, including creating sessions, listing targets, and opening the Chrome DevTools UI.","url":"https://developers.cloudflare.com/browser-run/cdp/session-management/","inLanguage":"en","image":"https://developers.cloudflare.com/browser-run/cdp/session-management/og.png?v=65bb6114563a9b7c","dateModified":"2026-09-26","publisher":{"@type":"Organization","name":"Cloudflare","description":"One platform for your apps, agents, and workforce. Build, secure, and scale without managing infrastructure","url":"https://www.cloudflare.com/","sameAs":["https://github.com/cloudflare","https://www.linkedin.com/company/cloudflare","https://x.com/cloudflare"],"logo":{"@type":"ImageObject","url":"https://developers.cloudflare.com/logo.svg"},"address":{"@type":"PostalAddress","streetAddress":"101 Townsend St","addressLocality":"San Francisco","addressRegion":"CA","postalCode":"94107","addressCountry":"US"},"contactPoint":[{"@type":"ContactPoint","contactType":"Customer Support","url":"https://support.cloudflare.com/","availableLanguage":["English"]},{"@type":"ContactPoint","contactType":"Sales","url":"https://www.cloudflare.com/contact/","availableLanguage":["English"]}]},"isPartOf":{"@type":"WebSite","@id":"https://developers.cloudflare.com/#website","name":"Cloudflare Docs","url":"https://developers.cloudflare.com/"}}
+```

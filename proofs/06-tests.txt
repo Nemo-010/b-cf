@@ -1,0 +1,19 @@
+-- cd reference && node --test test/*.test.mjs --
+1..47
+# tests 47
+# suites 0
+# pass 47
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+
+-- the same suite with every socket entry point poisoned (tools/no-network.mjs) --
+1..47
+# tests 47
+# suites 0
+# pass 47
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0

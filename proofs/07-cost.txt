@@ -1,0 +1,15 @@
+workload: 1,000 pages x 2.0s browser time x 1.5 MB/page
+
+option                                    USD / 1,000 pages   notes
+----------------------------------------------------------------------------------------------------
+Workers fetch only                                  0.0000   no browser hours; only Workers request/CPU overage above $5/mo
+CF Browser Run (quick action)                       0.0500   0.56 browser-hours; 18,000 pages/mo are inside the 10h free allowance
+Browser Use + residential proxy                     7.3353   0.56 h x $0.02/h + 1.46 GB x $5.0/GB
+Browser Use + direct/own proxy                      0.3041   + 1.46 GB x $0.2/GB
+DIY: VPS + residential (bulk $0.65/GB)              1.0021   $5.0/mo VPS amortised at 100k pages/mo ($0.05 here) + 1.46 GB x $0.65/GB
+DIY: VPS + residential (retail $1.75/GB)            2.6135   $5.0/mo VPS amortised at 100k pages/mo ($0.05 here) + 1.46 GB x $1.75/GB
+Jina Reader (r.jina.ai, no key)                     0.0000   20 RPM free; token-metered with an API key
+
+solver costs (Workers AI, per 1,000 solves)
+  audio challenge via Whisper : 0.10259 USD  (12s clip)
+  image captcha via moondream  : 0.12000 USD  (~400 input tokens)

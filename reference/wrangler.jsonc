@@ -1,0 +1,22 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "api-rv-pkgforge-dev",
+  "main": "src/index.js",
+  "compatibility_date": "2026-10-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "routes": [{ "pattern": "api.rv.pkgforge.dev", "custom_domain": true }],
+  "browser": {
+    "binding": "BROWSER"
+  },
+  "ai": {
+    "binding": "AI"
+  },
+  "vars": {
+    "RV_DEFAULT_PROFILE": "chrome-155-linux"
+  },
+  "limits": {
+    "cpu_ms": 30000
+  },
+  "placement": { "mode": "smart" }
+}

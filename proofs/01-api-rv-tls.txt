@@ -1,0 +1,9 @@
+ip              = 172.69.243.136:13839
+http_version    = h2
+user_agent      = Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15
+ja3             = 771,4865-4866-4867-49195-49196-49199-49200-49171-156-157-47-53-10,0-23-65281-10-11-35-16-13-51-45-43-21,29-23-24-25-4588-25497-65074,0
+ja3_hash        = 67560f98d68783bd640246df3052c151
+ja4             = t13d1312h2_a44d0ee8b3cc_e381dae6da6b
+peetprint_hash  = 86a3486140e2241fdfbdbe981958219e
+h2_akamai_hash  = 175a6d4585f5a5c52b0f6fcca2977cd0
+h2_settings     = ["ENABLE_PUSH = 0", "MAX_CONCURRENT_STREAMS = 1", "INITIAL_WINDOW_SIZE = 8388608", "MAX_FRAME_SIZE = 65536"]

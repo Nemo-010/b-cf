@@ -1,0 +1,19 @@
+{
+  "name": "api-rv-pkgforge-dev",
+  "private": true,
+  "type": "module",
+  "version": "2.0.0",
+  "description": "Tiered reverse proxy for api.rv.pkgforge.dev (fetch -> userland TLS -> Browser Run -> session + solvers)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "test": "node --test test/*.test.mjs",
+    "check": "node --check src/index.js"
+  },
+  "devDependencies": {
+    "wrangler": "^4.31.0"
+  },
+  "optionalDependencies": {
+    "@cloudflare/puppeteer": "^1.4.0"
+  }
+}

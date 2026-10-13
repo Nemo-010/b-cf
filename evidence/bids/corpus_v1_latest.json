@@ -1,0 +1,22 @@
+{
+  "schema": "corpus-latest/2",
+  "layout": "v1",
+  "latest": {
+    "chrome/linux64": "corpus/v1/chrome/stable/linux64/155.0.8059.39.json",
+    "chrome/win64": "corpus/v1/chrome/stable/win64/155.0.8059.40.json",
+    "chromium/linux64": "corpus/v1/chromium/stable/linux64/154.0.8037.92.json",
+    "edge/linux64": "corpus/v1/edge/stable/linux64/155.0.4283.45.json",
+    "firefox/linux64": "corpus/v1/firefox/stable/linux64/157.0.json",
+    "firefox/win64": "corpus/v1/firefox/stable/win64/156.0.1.json"
+  },
+  "per_channel": {
+    "chrome/for-testing/linux64": "corpus/v1/chrome/for-testing/linux64/155.0.8059.39.json",
+    "chrome/for-testing/win64": "corpus/v1/chrome/for-testing/win64/155.0.8059.39.json",
+    "chrome/stable/linux64": "corpus/v1/chrome/stable/linux64/155.0.8059.39.json",
+    "chrome/stable/win64": "corpus/v1/chrome/stable/win64/155.0.8059.40.json",
+    "chromium/stable/linux64": "corpus/v1/chromium/stable/linux64/154.0.8037.92.json",
+    "edge/stable/linux64": "corpus/v1/edge/stable/linux64/155.0.4283.45.json",
+    "firefox/stable/linux64": "corpus/v1/firefox/stable/linux64/157.0.json",
+    "firefox/stable/win64": "corpus/v1/firefox/stable/win64/156.0.1.json"
+  }
+}

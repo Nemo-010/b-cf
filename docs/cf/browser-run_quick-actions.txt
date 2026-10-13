@@ -1,0 +1,75 @@
+Skip to contentDocumentation Index
+Fetch the complete documentation index at: https://developers.cloudflare.com/browser-run/llms.txt
+Use this file to discover all available pages before exploring further.
+Docs
+SearchCtrlK
+Log inDashboard
+Quick Actions
+Last updated Oct 10, 2026|Copy as Markdown|View as Markdown|Agent setup
+Quick Actions provide simple interfaces for common browser tasks like capturing screenshots, extracting HTML content, generating PDFs, and more. You can use Quick Actions in two ways:
+REST API: HTTP endpoints for one-off requests or external integration.
+Workers Bindings: Call Quick Actions directly from a Cloudflare Worker using env.BROWSER.quickAction().
+The following are the available options:
+/content - Fetch HTML
+/screenshot - Capture screenshot
+/pdf - Render PDF
+/markdown - Extract Markdown from a webpage
+/snapshot - Capture multiple page formats
+/accessibilityTree - Capture accessibility tree
+/scrape - Scrape HTML elements
+/json - Capture structured data using AI
+/links - Retrieve links from a webpage
+/crawl - Crawl web content
+Reference
+/crawl is available via the REST API only.
+Use Quick Actions when you need a fast, simple way to perform common browser tasks such as capturing screenshots, extracting HTML, or generating PDFs without writing complex scripts. For more advanced automation, custom workflows, or persistent browser sessions, use Puppeteer, Playwright, or CDP.
+Before you begin
+REST API
+To use Quick Actions via the REST API, create a custom API Token with the following permissions:
+Browser Run - Edit
+Workers binding
+To use Quick Actions from a Worker, configure a browser binding in your wrangler.json. No API token is needed when using the Workers binding.
+{
+ "browser": {
+ "binding": "BROWSER"
+ }
+}
+Caution
+The .quickAction() method has two requirements:
+Compatibility date: Your Worker must use a compatibility date of 2026-03-24 or later.
+Remote mode for local development: The .quickAction() method is not yet supported in local development mode. When developing locally with wrangler dev, you must use npx wrangler dev --remote or set "remote": true in your browser binding configuration. Without remote mode, you will receive the error: The RPC receiver does not implement the method "quickAction".
+{
+ "compatibility_date": "2026-03-24",
+ "browser": {
+ "binding": "BROWSER",
+ "remote": true
+ }
+}
+Note
+You can monitor Browser Run (formerly Browser Rendering) usage in two ways:
+In the Cloudflare dashboard, go to the Browser Run page to view aggregate metrics, including total Quick Actions requests and total browser hours used.
+ Go to Browser Run ↗
+X-Browser-Ms-Used header: Returned in every Quick Actions response, reporting browser time used for that request (in milliseconds).
+Was this helpful?
+YesNo
+On this page
+Getting started
+PlansContact salesPartnersFind a partnerStartupsUnder attack?Domain name search
+Company
+AboutCareersInvestorsPressPress kitGlobal network
+Public interest
+Project GalileoAthenian ProjectCloudflare for CampaignsProject FairshotImpact/ESG
+Compliance
+Compliance resourcesTrust HubData ProtectionResponsible AITransparency reportReport abuse
+Resources
+App innovation reportCloudflare RadarCase studiesStatusSupportEventsBlog
+Developers
+DocumentationLearning centerCommunity
+Solutions
+SSE and SASE platformCloudflare AI CloudAI SecurityFrontend Development PlatformMulti-Tenant Platform DevelopmentWeb Security Platform
+Start BuildingLog In
+© 2026 Cloudflare, Inc.
+Privacy policy| Report security issues| Terms of use| Trademark
+|
+Your privacy choices
+Docs

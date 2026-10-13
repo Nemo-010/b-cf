@@ -1,0 +1,28 @@
+
+=== chrome-like (suite 0x1301) ===
+ip              38.25.151.89:59048
+http_version    HTTP/1.1
+user_agent      Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Safari/537.36
+ja3             771,4865-4866-4867-49195-49199-49196-49200-52393-52392-49171-49172-156-157-47-53,35-10-27-18-65281-11-13-51-43-0-45-16-23,29-23-24,0
+ja3_hash        9dfb8a1b3a6c5f19873de36cfc9900d9
+ja4             t13d1513h1_8daaf6152771_479629d6bd83
+peetprint_hash  480ac90fd1c0328b7b7d3abeb7278efa
+h2_akamai       null
+ciphers         16
+extensions      15
+
+=== minimal (suite 0x1301) ===
+ip              38.25.151.89:59064
+http_version    HTTP/1.1
+user_agent      minimal-tls13-client/1.0
+ja3             771,4865-4866-4867,0-10-11-13-16-43-51,29,0
+ja3_hash        7700f410b8aee6b0e74221bdfdf9802b
+ja4             t13d37h1_55b375c5d22e_ceda16c4aa8b
+peetprint_hash  ce59fdb519e5c69f43202f6c53213d44
+h2_akamai       null
+ciphers         3
+extensions      7
+
+=== the control ===
+ja4 differs : true (t13d1513h1_8daaf6152771_479629d6bd83 vs t13d37h1_55b375c5d22e_ceda16c4aa8b)
+ja3 differs : true

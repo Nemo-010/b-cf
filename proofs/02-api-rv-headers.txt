@@ -1,0 +1,10 @@
+Accept: */*
+Accept-Encoding: gzip, br
+Cdn-Loop: cloudflare; loops=1
+Cf-Ew-Via: 15
+Cf-Ray: a49ea785cc39a5b2-BAQ
+Cf-Visitor: {"scheme":"https"}
+Cf-Worker: pkgforge.dev
+Host: httpbin.org
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15
+X-Amzn-Trace-Id: Root=1-6ace309f-417b768f6b8c2ab622b50fbd

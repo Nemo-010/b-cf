@@ -1,0 +1,199 @@
+---
+description: Record and replay Browser Run sessions to visually debug browser automation scripts.
+title: Session recording
+image: https://developers.cloudflare.com/browser-run/features/session-recording/og.png?v=e0b4f537b14e70ba
+---
+
+[Skip to content](#main-content)
+
+> Documentation Index  
+> Fetch the complete documentation index at: https://developers.cloudflare.com/browser-run/llms.txt  
+> Use this file to discover all available pages before exploring further.
+
+# Session recording
+
+Last updated Sep 26, 2026|Copy as Markdown| [View as Markdown](https://developers.cloudflare.com/browser-run/features/session-recording/index.md)| [Agent setup](https://developers.cloudflare.com/agent-setup/)
+
+Beta
+
+When browser automation fails or behaves unexpectedly, it can be difficult to understand what happened. Session recording captures DOM changes, mouse and keyboard events, and page navigation as structured JSON events — not a video — so it is lightweight and easy to inspect. Recordings are powered by [rrweb ↗︎](https://github.com/rrweb-io/rrweb) and are opt-in per session.
+
+## Enable session recording
+
+Session recording must be enabled during the initial session acquisition. You cannot enable recording when reconnecting to an existing session.
+
+Pass `recording: true` to `puppeteer.launch()` or `playwright.launch()`:
+
+```ts
+import puppeteer from "@cloudflare/puppeteer";
+
+interface Env {
+	MYBROWSER: Fetcher;
+}
+
+export default {
+	async fetch(request: Request, env: Env): Promise<Response> {
+		const browser = await puppeteer.launch(env.MYBROWSER, { recording: true });
+		const page = await browser.newPage();
+
+		await page.goto("https://example.com");
+		// ... your automation steps ...
+
+		const sessionId = browser.sessionId();
+		await browser.close();
+
+		return new Response(`Session recorded: ${sessionId}`);
+	},
+};
+```
+
+```ts
+import { launch } from "@cloudflare/playwright";
+
+interface Env {
+	MYBROWSER: Fetcher;
+}
+
+export default {
+	async fetch(request: Request, env: Env): Promise<Response> {
+		const browser = await launch(env.MYBROWSER, { recording: true });
+		const page = await browser.newPage();
+
+		await page.goto("https://example.com");
+		// ... your automation steps ...
+
+		const sessionId = browser.sessionId();
+		await browser.close();
+
+		return new Response(`Session recorded: ${sessionId}`);
+	},
+};
+```
+
+Note
+
+The recording is finalized when the browser session closes, whether you call `browser.close()` explicitly, the session reaches its idle timeout, or the Worker terminates for any other reason. The recording is not available until after the session ends.
+
+## Enable with CDP endpoint
+
+When connecting to Browser Run from any environment using the [CDP endpoint](https://developers.cloudflare.com/browser-run/cdp/), add `recording=true` as a query parameter to the WebSocket URL:
+
+```txt
+wss://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/browser-run/devtools/browser?recording=true&keep_alive=600000
+```
+
+For example, to enable session recording in an MCP client, add `recording=true` to the `--wsEndpoint` URL in your client configuration:
+
+```json
+{
+	"mcpServers": {
+		"browser-rendering": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"chrome-devtools-mcp@latest",
+				"--wsEndpoint=wss://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/browser-run/devtools/browser?recording=true&keep_alive=600000",
+				"--wsHeaders={\"Authorization\":\"Bearer <API_TOKEN>\"}"
+			]
+		}
+	}
+}
+```
+
+For other MCP clients and CDP usage with Puppeteer or Playwright, refer to the [CDP documentation](https://developers.cloudflare.com/browser-run/cdp/).
+
+Note
+
+The recording is only available after the browser session closes. CDP sessions typically use `keep_alive` to stay open between commands. The browser will close automatically when it has been idle for the `keep_alive` duration. You can also close it explicitly with `browser.close()`.
+
+## View recordings
+
+After a session closes, its recording is available in the Cloudflare dashboard under **Browser Run** > **Runs**. Select the recording icon next to a session to open the recording viewer, where you can scrub through the timeline and replay what happened during the session.
+
+If a session opened multiple tabs, the recording viewer shows a tab selector dropdown in the top-right corner of the replay area. Use it to switch between the recorded tabs and view the activity for each one individually.
+
+[Go to **Browser Run Runs** ↗](https://dash.cloudflare.com/?to=/:account/workers/browser-run/runs)
+
+## Retrieve a recording via API
+
+You can also retrieve a recording programmatically using the session ID. Use `browser.sessionId()` to capture the session ID before closing the browser, then pass it to the recordings endpoint.
+
+```bash
+curl https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/browser-run/recording/<SESSION_ID> \
+  -H "Authorization: Bearer <API_TOKEN>"
+```
+
+A successful response looks similar to the following:
+
+```json
+{
+	"success": true,
+	"result": {
+		"sessionId": "e26d4660-5b78-4761-b82f-c6b5bad5a925",
+		"duration": 4380,
+		"events": {
+			"target-1": [],
+			"target-2": []
+		}
+	}
+}
+```
+
+After a recorded session closes, the recording may still be finalizing. The endpoint can briefly return `404` during this period. Callers can retry the request until finalization completes.
+
+The event arrays are available under `result.events`. The keys in `result.events` (such as `target-1`, `target-2`) are [CDP targets ↗︎](https://chromedevtools.github.io/devtools-protocol/tot/Target/). In the context of session recording, each target typically corresponds to a browser tab. A session that opened multiple tabs will have one target per tab, and each target's value is an independent rrweb event array for that tab.
+
+## Retrieve network activity via API
+
+Use the network recording endpoint to retrieve the requests captured for a specific target. The `target` query parameter is required and must contain one of the target IDs returned in `result.events`:
+
+```bash
+curl 'https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/browser-run/recording/<SESSION_ID>/network?target=<TARGET_ID>' \
+  -H "Authorization: Bearer <API_TOKEN>"
+```
+
+The response is a JSON array containing the recorded requests for that target, including available request and response headers, payloads, status codes, timing information, and transfer sizes.
+
+To retrieve the network activity as an [HTTP Archive (HAR) 1.2 ↗︎](https://w3c.github.io/web-performance/specs/HAR/Overview.html) document, set `format=har`:
+
+```bash
+curl 'https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/browser-run/recording/<SESSION_ID>/network?target=<TARGET_ID>&format=har' \
+  -H "Authorization: Bearer <API_TOKEN>"
+```
+
+## Replay a recording
+
+Each value in `result.events` is a standard rrweb event array and can be passed directly to [`rrweb-player` ↗︎](https://github.com/rrweb-io/rrweb/tree/master/packages/rrweb-player) to self-host a replay UI with a timeline scrubber and playback controls.
+
+Tabs replay independently — to replay a multi-tab session, render one player per target, or build a UI that lets the user switch between targets (similar to the tab selector in the dashboard recording viewer).
+
+## Limits
+
+- Recordings are retained for 30 days after the session ends and automatically deleted.
+- Recording is opt-in. It is not enabled by default.
+- Session recording is available with Browser Sessions via `launch()` and the [CDP endpoint](https://developers.cloudflare.com/browser-run/cdp/). It is not available with Quick Actions.
+- The minimum recording duration is 1 second. Sessions shorter than 1 second will not produce a viewable recording.
+- The maximum recording duration is 2 hours.
+
+## rrweb limitations
+
+Session recording uses [rrweb ↗︎](https://github.com/rrweb-io/rrweb), which records DOM state and events rather than pixels. This approach is lightweight but has the following limitations:
+
+- **Canvas elements** — The content of `<canvas>` elements is not captured. The element itself appears in the recording as a blank placeholder.
+- **Cross-origin iframes** — Content inside cross-origin `<iframe>` elements is not recorded. Same-origin iframes are recorded normally.
+- **Video and audio** — The DOM structure of `<video>` and `<audio>` elements is captured, but media playback state and content are not.
+- **WebGL** — WebGL rendering is not captured.
+- **Input fields** — The content of all input fields is masked by default and will not be visible in the replay.
+- **Large or complex pages** — Pages with frequent DOM mutations (for example, pages with real-time data feeds or heavy animations) can generate a high volume of events, which increases the size of the recording.
+
+Was this helpful?
+
+YesNo
+
+## On this page
+
+[![](https://developers.cloudflare.com/_astro/logo.te5VL_aD.svg)Docs](https://developers.cloudflare.com/)
+
+```json
+{"@context":"https://schema.org","@type":"TechArticle","@id":"https://developers.cloudflare.com/browser-run/features/session-recording/#page","headline":"Session recording","description":"Record and replay Browser Run sessions to visually debug browser automation scripts.","url":"https://developers.cloudflare.com/browser-run/features/session-recording/","inLanguage":"en","image":"https://developers.cloudflare.com/browser-run/features/session-recording/og.png?v=e0b4f537b14e70ba","dateModified":"2026-09-26","publisher":{"@type":"Organization","name":"Cloudflare","description":"One platform for your apps, agents, and workforce. Build, secure, and scale without managing infrastructure","url":"https://www.cloudflare.com/","sameAs":["https://github.com/cloudflare","https://www.linkedin.com/company/cloudflare","https://x.com/cloudflare"],"logo":{"@type":"ImageObject","url":"https://developers.cloudflare.com/logo.svg"},"address":{"@type":"PostalAddress","streetAddress":"101 Townsend St","addressLocality":"San Francisco","addressRegion":"CA","postalCode":"94107","addressCountry":"US"},"contactPoint":[{"@type":"ContactPoint","contactType":"Customer Support","url":"https://support.cloudflare.com/","availableLanguage":["English"]},{"@type":"ContactPoint","contactType":"Sales","url":"https://www.cloudflare.com/contact/","availableLanguage":["English"]}]},"isPartOf":{"@type":"WebSite","@id":"https://developers.cloudflare.com/#website","name":"Cloudflare Docs","url":"https://developers.cloudflare.com/"}}
+```

@@ -1,0 +1,123 @@
+---
+description: Connect Playwright to Browser Run sessions from any Node.js environment to automate browser tasks using the Chrome DevTools Protocol.
+title: Using with Playwright (CDP)
+image: https://developers.cloudflare.com/browser-run/cdp/playwright/og.png?v=34c97f4c4e02fe63
+---
+
+[Skip to content](#main-content)
+
+> Documentation Index  
+> Fetch the complete documentation index at: https://developers.cloudflare.com/browser-run/llms.txt  
+> Use this file to discover all available pages before exploring further.
+
+# Using with Playwright (CDP)
+
+Last updated Sep 26, 2026|Copy as Markdown| [View as Markdown](https://developers.cloudflare.com/browser-run/cdp/playwright/index.md)| [Agent setup](https://developers.cloudflare.com/agent-setup/)
+
+You can use [Playwright ↗︎](https://playwright.dev/) to connect to Browser Run sessions from any Node.js environment and automate browser tasks programmatically via CDP. This is useful for scripts running on your local machine, CI/CD pipelines, or external servers.
+
+Before you begin, [create a custom API Token](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/) with `Browser Rendering - Edit` permission.
+
+## Prerequisites
+
+- Node.js installed on your machine
+- A Cloudflare account with Browser Run enabled
+- A Browser Run API token with `Browser Rendering - Edit` permissions
+
+## Install Playwright
+
+Install the `playwright-core` package (the version without bundled browsers):
+
+npmyarnpnpmbun
+
+```
+npm i playwright-core
+```
+
+```
+yarn add playwright-core
+```
+
+```
+pnpm add playwright-core
+```
+
+```
+bun add playwright-core
+```
+
+## Connect to Browser Run
+
+The following script demonstrates how to connect to a Browser Run session, navigate to a page, extract the title, and take a screenshot.
+
+Create a file named `script.js`:
+
+```js
+const { chromium } = require("playwright-core");
+
+const ACCOUNT_ID = process.env.CF_ACCOUNT_ID || "<ACCOUNT_ID>";
+const API_TOKEN = process.env.CF_API_TOKEN || "<API_TOKEN>";
+
+const browserWSEndpoint = `wss://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/browser-run/devtools/browser?keep_alive=600000`;
+
+async function main() {
+	const browser = await chromium.connectOverCDP(browserWSEndpoint, {
+		headers: {
+			Authorization: `Bearer ${API_TOKEN}`,
+		},
+	});
+
+	const context = browser.contexts()[0];
+	const page = context.pages()[0] || (await context.newPage());
+	await page.goto("https://developers.cloudflare.com");
+
+	const title = await page.title();
+	console.log(`Page title: ${title}`);
+
+	await page.screenshot({ path: "screenshot.png" });
+
+	await browser.close();
+}
+
+main().catch(console.error);
+```
+
+Replace `ACCOUNT_ID` with your Cloudflare account ID and `API_TOKEN` with your Browser Run API token, or set them as environment variables:
+
+```bash
+export CF_ACCOUNT_ID="<ACCOUNT_ID>"
+export CF_API_TOKEN="<API_TOKEN>"
+```
+
+## Run the script
+
+```bash
+node script.js
+```
+
+You should see the page title printed to the console and a screenshot saved as `screenshot.png`.
+
+## How it works
+
+The script connects directly to Browser Run via WebSocket using the CDP protocol:
+
+1. **WebSocket endpoint** - The `browserWSEndpoint` URL acquires a new browser session and connects to it via WebSocket
+2. **Authentication** - The `Authorization` header with your API token authenticates the request
+3. **Keep-alive** - The `keep_alive` parameter (in milliseconds) specifies how long the session stays active
+4. **Playwright API** - Once connected, you use the standard Playwright API to control the browser
+
+## Troubleshooting
+
+If you have questions or encounter an error, see the [Browser Run FAQ and troubleshooting guide](https://developers.cloudflare.com/browser-run/faq/).
+
+Was this helpful?
+
+YesNo
+
+## On this page
+
+[![](https://developers.cloudflare.com/_astro/logo.te5VL_aD.svg)Docs](https://developers.cloudflare.com/)
+
+```json
+{"@context":"https://schema.org","@type":"TechArticle","@id":"https://developers.cloudflare.com/browser-run/cdp/playwright/#page","headline":"Using with Playwright (CDP)","description":"Connect Playwright to Browser Run sessions from any Node.js environment to automate browser tasks using the Chrome DevTools Protocol.","url":"https://developers.cloudflare.com/browser-run/cdp/playwright/","inLanguage":"en","image":"https://developers.cloudflare.com/browser-run/cdp/playwright/og.png?v=34c97f4c4e02fe63","dateModified":"2026-09-26","publisher":{"@type":"Organization","name":"Cloudflare","description":"One platform for your apps, agents, and workforce. Build, secure, and scale without managing infrastructure","url":"https://www.cloudflare.com/","sameAs":["https://github.com/cloudflare","https://www.linkedin.com/company/cloudflare","https://x.com/cloudflare"],"logo":{"@type":"ImageObject","url":"https://developers.cloudflare.com/logo.svg"},"address":{"@type":"PostalAddress","streetAddress":"101 Townsend St","addressLocality":"San Francisco","addressRegion":"CA","postalCode":"94107","addressCountry":"US"},"contactPoint":[{"@type":"ContactPoint","contactType":"Customer Support","url":"https://support.cloudflare.com/","availableLanguage":["English"]},{"@type":"ContactPoint","contactType":"Sales","url":"https://www.cloudflare.com/contact/","availableLanguage":["English"]}]},"isPartOf":{"@type":"WebSite","@id":"https://developers.cloudflare.com/#website","name":"Cloudflare Docs","url":"https://developers.cloudflare.com/"}}
+```
